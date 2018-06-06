@@ -23,6 +23,20 @@
   (define (fmt-id ctx fmt . args)
     (apply format-id ctx fmt #:source ctx #:props ctx args))
 
+  ;; "super" properties, or properties that it implies
+  (define-splicing-syntax-class super-property-clause
+    #:attributes [pair]
+    [pattern {~seq #:property prop value}
+      #:with pair #'(cons prop (const value))])
+
+  (define-splicing-syntax-class options
+    #:attributes [[other-arg 1]]
+    [pattern {~seq} #:with [other-arg ...] '()]
+    [pattern {~seq super:super-property-clause ...}
+      #:with [other-arg ...]
+      #'[#f
+         (list super.pair ...)]])
+
   ;; Nat Id Id Id -> [Syntax -> Syntax]
   (define (make-struct-like-property-match-transformer
            N
@@ -39,7 +53,8 @@
                  (#,name-struct pat ...)))])))
 
 (define-simple-macro
-  (define-struct-like-struct-type-property name:id [field:id ...])
+  (define-struct-like-struct-type-property name:id [field:id ...]
+    options:options)
 
   #:with prop-name (fmt-id #'name "prop:~a" #'name)
   #:with name-str  (symbol->string (syntax-e #'name))
@@ -58,7 +73,7 @@
 
   (begin
     (define-values [prop-name name? internal-prop-ref]
-      (make-struct-type-property 'name))
+      (make-struct-type-property 'name options.other-arg ...))
 
     (struct name-struct [field ...]
       #:property prop-name identity)
