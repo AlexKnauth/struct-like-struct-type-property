@@ -1,6 +1,8 @@
 #lang racket/base
 
 (provide define-struct-like-struct-type-property)
+(module+ private
+  (provide (for-syntax struct-like-property-id)))
 
 ;; (define-struct-like-struct-type-property name [field ...])
 ;;
@@ -20,6 +22,10 @@
                      "util/id-transformer.rkt"))
 
 (begin-for-syntax
+  (struct struct-like-property-transformer
+    [procedure match-expander predicate field-symbols]
+    #:property prop:procedure (struct-field-index procedure)
+    #:property prop:match-expander (struct-field-index match-expander))
 
   ;; "super" properties, or properties that it implies
   (define-splicing-syntax-class super-property-clause
@@ -88,12 +94,27 @@
       (name-struct-field (internal-normalize-prop v)))
     ...
 
-    (define-match-expander name
-      (make-struct-like-property-match-transformer
-       'N
+    (define-syntax name
+      (struct-like-property-transformer
+       (make-var-like-transformer
+        (quote-syntax name-struct))
+       (make-struct-like-property-match-transformer
+        'N
+        (quote-syntax name?)
+        (quote-syntax internal-normalize-prop)
+        (quote-syntax name-struct))
        (quote-syntax name?)
-       (quote-syntax internal-normalize-prop)
-       (quote-syntax name-struct))
-      (make-var-like-transformer
-       (quote-syntax name-struct)))))
+       (list 'field ...)))))
+
+;; ---------------------------------------------------------
+
+(module+ private
+  (begin-for-syntax
+    (define-syntax-class struct-like-property-id
+      [pattern {~var id (static struct-like-property-transformer?
+                                "struct-like-property")}
+        #:attr predicate
+        (struct-like-property-transformer-predicate (@ id.value))
+        #:attr field-symbols
+        (struct-like-property-transformer-field-symbols (@ id.value))])))
 
