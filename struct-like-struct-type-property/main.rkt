@@ -16,12 +16,10 @@
          (for-syntax racket/base
                      racket/syntax
                      (only-in syntax/parse [attribute @])
+                     "util/fmt-id.rkt"
                      "util/id-transformer.rkt"))
 
 (begin-for-syntax
-  ;; Syntax FmtString PlaceFiller ... -> Id
-  (define (fmt-id ctx fmt . args)
-    (apply format-id ctx fmt #:source ctx #:props ctx args))
 
   ;; "super" properties, or properties that it implies
   (define-splicing-syntax-class super-property-clause
