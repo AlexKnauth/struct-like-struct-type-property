@@ -2,9 +2,13 @@
 
 @(require scribble/eval
           (for-label racket
-                     struct-like-struct-type-property))
+                     struct-like-struct-type-property
+                     struct-like-struct-type-property/syntax-class))
 
 @title{Struct-type properties with a struct-like interface}
+
+Source code:
+@url{https://github.com/AlexKnauth/struct-like-struct-type-property}.
 
 @defmodule[struct-like-struct-type-property]
 
