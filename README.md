@@ -1,6 +1,8 @@
 # struct-like-struct-type-property
 Creating struct-type properties with a struct-like interface.
 
+[_Documentation_](https://docs.racket-lang.org/struct-like-struct-type-property/index.html).
+
 ```racket
 (require struct-like-struct-type-property)
 ```
