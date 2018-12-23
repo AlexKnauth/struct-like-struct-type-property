@@ -76,6 +76,18 @@
   #:with N (length (@ field))
 
   (begin
+    (define-syntax name
+      (struct-like-property-transformer
+       (make-var-like-transformer
+        (quote-syntax name-struct))
+       (make-struct-like-property-match-transformer
+        'N
+        (quote-syntax name?)
+        (quote-syntax internal-normalize-prop)
+        (quote-syntax name-struct))
+       (quote-syntax name?)
+       (list 'field ...)))
+
     (define-values [prop-name name? internal-prop-ref]
       (make-struct-type-property 'name options.other-arg ...))
 
@@ -92,19 +104,7 @@
 
     (define (name-field v)
       (name-struct-field (internal-normalize-prop v)))
-    ...
-
-    (define-syntax name
-      (struct-like-property-transformer
-       (make-var-like-transformer
-        (quote-syntax name-struct))
-       (make-struct-like-property-match-transformer
-        'N
-        (quote-syntax name?)
-        (quote-syntax internal-normalize-prop)
-        (quote-syntax name-struct))
-       (quote-syntax name?)
-       (list 'field ...)))))
+    ...))
 
 ;; ---------------------------------------------------------
 
