@@ -8,7 +8,10 @@ Creating struct-type properties with a struct-like interface.
 ```
 
 ```racket
-(define-struct-like-struct-type-property name [field ...])
+(define-struct-like-struct-type-property name [field ...]
+  prop-option ...)
+  
+  prop-option = #:property prop-expr val-expr
 ```
 
 Defines these identifiers:
@@ -17,6 +20,12 @@ Defines these identifiers:
  - `name?`
  - `name-field` ...
  
+The property `prop:name` expects a function that takes a
+"self" argument and returns a `name` result. When someone
+wants to use the value as a `prop:name`, this function
+should construct a more basic structure that contains the
+field values.
+
 Example:
 ```racket
 (define-struct-like-struct-type-property foo [a b c])
@@ -39,3 +48,31 @@ Example:
     [(foo a b c) c])
 5
 ```
+
+The `#:property prop-expr val-expr` options specify
+super-properties. Anything that implements `prop:name` will
+automatically implement all the properties specified by the
+given `prop-exprs`.
+
+Example:
+```racket
+(define-struct-like-struct-type-property quadratic [a b c]
+  #:property prop:procedure
+  (λ (self x)
+    (+ (* (quadratic-a self) (sqr x))
+       (* (quadratic-b self) x)
+       (quadratic-c self))))
+
+> (define f (quadratic 1 -2 -3))
+> (f 0)
+-3
+> (f 1)
+-4
+> (f 2)
+-3
+> (f 3)
+0
+> (f 4)
+5
+```
+
